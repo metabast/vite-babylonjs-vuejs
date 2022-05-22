@@ -9,6 +9,9 @@
   },
   "dependencies": {
     "@babylonjs/core": "^5.5.6",
+    "@babylonjs/loaders": "^5.5.6",
+    "glslify": "^7.1.1",
+    "vite-plugin-glsl": "^0.1.2",
     "vue": "^3.2.25"
   },
   "devDependencies": {

@@ -2,13 +2,20 @@ import {
   Scene, 
   ArcRotateCamera, 
   MeshBuilder, 
-  StandardMaterial, 
+  StandardMaterial,
+  ShaderMaterial,
   Engine, 
   Vector3,
   HemisphericLight,
   PointLight,
+  SceneLoader,
   Color3,
+  Effect,
 } from "@babylonjs/core";
+import "@babylonjs/loaders";
+
+import customFragmentShader from "./shaders/custom.frag.glsl";
+import customVertexShader from "./shaders/custom.vertex.glsl";
 
 class World{
   constructor(){
@@ -29,8 +36,32 @@ class World{
     const mat = new StandardMaterial("mat1");
     mat.ambientColor = new Color3(1,1,1);
 
-    const box = MeshBuilder.CreateBox("box", {size:1});
-    box.material = mat;
+
+    Effect.ShadersStore.customFragmentShader = customFragmentShader;
+    Effect.ShadersStore.customVertexShader = customVertexShader;
+    console.log(Effect.ShadersStore);
+    console.log(Effect.IncludesShadersStore);
+
+  
+    var shaderMaterial = new ShaderMaterial(
+      "shader",
+      scene,
+      {
+        vertex: "custom",
+        fragment: "custom",
+      },
+      {
+        attributes: ["position", "normal", "uv"],
+        uniforms: ["world", "worldView", "worldViewProjection", "view", "projection"],
+        defines: ["pbr"],
+      },
+    );
+    
+    const obj = SceneLoader.AppendAsync("", "plane.glb").then( () => {
+      scene.meshes[1].material = shaderMaterial;
+    } );
+
+
 
     engine.runRenderLoop( ()=> {
       scene.render();
