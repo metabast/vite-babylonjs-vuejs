@@ -1,19 +1,13 @@
 import {
   Scene, 
   ArcRotateCamera, 
-  MeshBuilder, 
   StandardMaterial,
   ShaderMaterial,
   Engine, 
   Vector3,
-  HemisphericLight,
-  PointLight,
   SceneLoader,
-  Color3,
   Effect,
   Texture,
-  Mesh,
-  TransformNode,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 
@@ -94,7 +88,6 @@ class World{
           cloneMesh.position.x += 2;
           cloneMesh.material = matcapMaterial;
           mesh.position.x -= 2;
-        }else{
         }
       } );
   });
@@ -105,7 +98,7 @@ class World{
       scene.render();
     });
 
-    window.addEventListener('resize', (event)=>{
+    window.addEventListener('resize', ()=>{
       engine.resize();
     });
   }

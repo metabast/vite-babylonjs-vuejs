@@ -1,19 +1,12 @@
 import {
   Scene, 
   ArcRotateCamera, 
-  MeshBuilder, 
-  StandardMaterial,
-  ShaderMaterial,
-  Engine, 
   Vector3,
-  HemisphericLight,
-  PointLight,
   SceneLoader,
-  Color3,
   Effect,
   Texture,
-  Mesh,
-  TransformNode,
+  Engine,
+  ShaderMaterial,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 
@@ -69,7 +62,6 @@ class World{
       scene.meshes.forEach(mesh => {
         if(mesh.geometry){
           mesh.material = customMaterial;
-        }else{
         }
       } );
   });
@@ -80,7 +72,7 @@ class World{
       scene.render();
     });
 
-    window.addEventListener('resize', (event)=>{
+    window.addEventListener('resize', ()=>{
       engine.resize();
     });
   }
