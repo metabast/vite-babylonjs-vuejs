@@ -17,5 +17,9 @@ varying vec2 vN;
 #include ../../../shaders/utils.glsl
 
 void main(void) {
-    gl_FragColor = vec4(vColor, 1.);
+
+    vec4 matcapColor = texture2D( textureSampler, -vN );
+    vec4 diffuseColor = vec4( 1.0, 1.0, 1.0, 1.0 );
+
+    gl_FragColor = vec4(matcapColor.rgb, 1.);
 }

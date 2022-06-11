@@ -11,6 +11,9 @@ import {
   SceneLoader,
   Color3,
   Effect,
+  Texture,
+  Mesh,
+  TransformNode,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 
@@ -24,26 +27,28 @@ class World{
 
 
     const scene = new Scene(engine);
-    scene.ambientColor = new Color3(.2,.2,.2);
+    // scene.ambientColor = new Color3(.2,.2,.2);
 
-    const camera = new ArcRotateCamera('camera', -Math.PI/2, Math.PI / 2.5, 3, new Vector3(0,0,0));
+    const camera = new ArcRotateCamera('camera', -Math.PI/2, Math.PI / 2.5, 6, new Vector3(0,0,0));
     camera.minZ = 0.1;
     camera.maxZ = 100;
     camera.attachControl(canvas, true);
     camera.wheelDeltaPercentage = .1;
 
-    const light = new HemisphericLight("hemi", new Vector3(0,1,0));
-    const mat = new StandardMaterial("mat1");
-    mat.ambientColor = new Color3(1,1,1);
+    // const light = new HemisphericLight("hemi", new Vector3(0,1,0));
+    // const mat = new StandardMaterial("mat1");
+    // mat.ambientColor = new Color3(1,1,1);
 
 
     Effect.ShadersStore.customFragmentShader = customFragmentShader;
     Effect.ShadersStore.customVertexShader = customVertexShader;
+
     console.log(Effect.ShadersStore);
     console.log(Effect.IncludesShadersStore);
 
-  
-    var shaderMaterial = new ShaderMaterial(
+    const matcapTexture = new Texture("https://makio135.com/matcaps/1024/D54C2B_5F1105_F39382_F08375.png");
+
+    var customMaterial = new ShaderMaterial(
       "shader",
       scene,
       {
@@ -51,15 +56,23 @@ class World{
         fragment: "custom",
       },
       {
-        attributes: ["position", "normal", "uv"],
-        uniforms: ["world", "worldView", "worldViewProjection", "view", "projection"],
-        defines: ["pbr"],
+        uniforms: ["worldView", "worldViewProjection"],
+        samplers: ["textureSampler"],
       },
     );
-    
-    const obj = SceneLoader.AppendAsync("", "plane.glb").then( () => {
-      scene.meshes[1].material = shaderMaterial;
-    } );
+    customMaterial.setTexture("textureSampler", matcapTexture);
+
+
+
+
+    SceneLoader.Append("./", "monkey.glb", scene, function (scene) {
+      scene.meshes.forEach(mesh => {
+        if(mesh.geometry){
+          mesh.material = customMaterial;
+        }else{
+        }
+      } );
+  });
 
 
 
