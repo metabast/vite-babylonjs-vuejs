@@ -17,6 +17,7 @@ varying vec4 vPositionView;
 varying vec3 vNormal;
 varying vec3 vColor;
 varying vec2 vUvView;
+varying vec2 vUv;
 
 
 void main() {
@@ -31,7 +32,8 @@ void main() {
 	vUvView = vec2( dot( x, normalView ), dot( y, normalView ) ) * 0.495 + 0.5; // 0.495 to remove artifacts caused by undersized matcap disks
 
     vNormal = normal;
-    vColor = vec3(1.0, 1.0, 1.0);
+    vColor = vec3(2.,2.,2.);
 
     gl_Position = worldViewProjection * p;
+    vUv = uv;
 }

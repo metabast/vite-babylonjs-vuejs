@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted } from 'vue';
-import { World } from '../worlds/world';
+import { World } from '../worlds/world-matcap';
 
 // Force reload
 if ( import.meta.hot ) {

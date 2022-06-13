@@ -46,7 +46,9 @@ class World{
     console.log( Effect.ShadersStore );
     console.log( Effect.IncludesShadersStore );
 
-    const matcapTexture = new Texture( 'https://makio135.com/matcaps/1024/D54C2B_5F1105_F39382_F08375.png' );
+    const matcapTexture = new Texture( 'https://makio135.com/matcaps/128/D54C2B_5F1105_F39382_F08375-128px.png' );
+    const colorTexture = new Texture( './green_metal_rust_diff_1k.jpg' );
+    const specularTexture = new Texture( './green_metal_rust_disp_1k.png' );
 
     var customMaterial = new ShaderMaterial(
       'shader',
@@ -57,10 +59,11 @@ class World{
       },
       {
         uniforms: ['worldView', 'worldViewProjection'],
-        samplers: ['textureSampler'],
+        samplers: ['textureSampler', 'colorTexSampler'],
       },
     );
     customMaterial.setTexture( 'textureSampler', matcapTexture );
+    
 
     var matcapMaterial = new ShaderMaterial(
       'shader',
@@ -75,6 +78,8 @@ class World{
       },
     );
     matcapMaterial.setTexture( 'textureSampler', matcapTexture );
+    matcapMaterial.setTexture( 'colorTexSampler', colorTexture );
+    matcapMaterial.setTexture( 'specularSampler', specularTexture );
 
     const matcap = new StandardMaterial( '' );
     matcap.reflectionTexture = matcapTexture;
