@@ -26,12 +26,14 @@ class World{
     const scene = new Scene( engine );
     // scene.ambientColor = new Color3(.2,.2,.2);
 
-    const camera = new ArcRotateCamera( 'camera', -Math.PI/2, Math.PI / 2.5, 6, new Vector3( 0,0,0 ) );
+    const camera = new ArcRotateCamera( 'camera', Math.PI/2, Math.PI / 2.5, 6, new Vector3( 0,0,0 ) );
     camera.minZ = 0.1;
     camera.maxZ = 100;
+    camera.wheelDeltaPercentage = .035;
+    camera.lowerRadiusLimit = 2 ;
+    camera.upperRadiusLimit = 10 ;
+    
     camera.attachControl( canvas, true );
-    camera.wheelDeltaPercentage = .1;
-
     // const light = new HemisphericLight("hemi", new Vector3(0,1,0));
     // const mat = new StandardMaterial("mat1");
     // mat.ambientColor = new Color3(1,1,1);
@@ -46,9 +48,12 @@ class World{
     console.log( Effect.ShadersStore );
     console.log( Effect.IncludesShadersStore );
 
-    const matcapTexture = new Texture( 'https://makio135.com/matcaps/128/D54C2B_5F1105_F39382_F08375-128px.png' );
+    const matcapTexture = new Texture( './matcap-D54C2B_5F1105_F39382_F08375-128px.png' );
+    matcapTexture.coordinatesMode = Texture.SPHERICAL_MODE;
+    const matcapBlurTexture = new Texture( './matcap-D54C2B_5F1105_F39382_F08375-128px-blur.png' );
     const colorTexture = new Texture( './green_metal_rust_diff_1k.jpg' );
     const specularTexture = new Texture( './green_metal_rust_disp_1k.png' );
+    const checkerTexture = new Texture( './checker.png' );
 
     var customMaterial = new ShaderMaterial(
       'shader',
@@ -59,10 +64,10 @@ class World{
       },
       {
         uniforms: ['worldView', 'worldViewProjection'],
-        samplers: ['textureSampler', 'colorTexSampler'],
+        samplers: ['matcapSampler', 'colorTexSampler'],
       },
     );
-    customMaterial.setTexture( 'textureSampler', matcapTexture );
+    customMaterial.setTexture( 'matcapSampler', matcapTexture );
     
 
     var matcapMaterial = new ShaderMaterial(
@@ -73,13 +78,17 @@ class World{
         fragment: 'matcap',
       },
       {
-        uniforms: ['worldView', 'worldViewProjection'],
-        samplers: ['textureSampler'],
+        defines: ['ADDCOLOR', 'MATCAP_DESATURATE'],
+        uniforms: ['worldView', 'worldViewProjection', 'uColor'],
+        samplers: ['matcapSampler', 'checkerSampler'],
       },
     );
-    matcapMaterial.setTexture( 'textureSampler', matcapTexture );
+    matcapMaterial.setTexture( 'matcapSampler', matcapTexture );
+    matcapMaterial.setTexture( 'matcapBlurSampler', matcapBlurTexture );
     matcapMaterial.setTexture( 'colorTexSampler', colorTexture );
     matcapMaterial.setTexture( 'specularSampler', specularTexture );
+    matcapMaterial.setTexture( 'checkerSampler', checkerTexture );
+    matcapMaterial.setVector3( 'uColor', new Vector3( 1,1,1) );
 
     const matcap = new StandardMaterial( '' );
     matcap.reflectionTexture = matcapTexture;
@@ -87,11 +96,16 @@ class World{
     SceneLoader.Append( './', 'monkey.glb', scene, function ( scene ) {
       scene.meshes.forEach( mesh => {
         if( mesh.geometry ){
-          mesh.material = customMaterial;
+          mesh.material = matcapMaterial;
 
           const cloneMesh = mesh.clone();
           cloneMesh.position.x += 2;
-          cloneMesh.material = matcapMaterial;
+          cloneMesh.material = matcap;
+
+          const cloneMesh2 = cloneMesh.clone();
+          cloneMesh2.position.x += 4;
+          cloneMesh2.material = customMaterial;
+
           mesh.position.x -= 2;
         }
       } );
