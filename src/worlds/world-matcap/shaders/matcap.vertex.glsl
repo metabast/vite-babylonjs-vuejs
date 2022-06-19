@@ -19,7 +19,6 @@ varying vec3 vColor;
 varying vec2 vUvView;
 varying vec2 vUv;
 
-
 void main() {
     vec4 p = vec4( position, 1. );
     

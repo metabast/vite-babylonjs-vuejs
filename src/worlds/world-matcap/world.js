@@ -8,6 +8,7 @@ import {
   SceneLoader,
   Effect,
   Texture,
+  MeshBuilder,
 } from '@babylonjs/core';
 import '@babylonjs/loaders';
 
@@ -52,6 +53,7 @@ class World{
     matcapTexture.coordinatesMode = Texture.SPHERICAL_MODE;
     const matcapBlurTexture = new Texture( './matcap-D54C2B_5F1105_F39382_F08375-128px-blur.png' );
     const colorTexture = new Texture( './green_metal_rust_diff_1k.jpg' );
+    const colorTexture2 = new Texture( './plywood_diff_1k.jpg' );
     const specularTexture = new Texture( './green_metal_rust_disp_1k.png' );
     const checkerTexture = new Texture( './checker.png' );
 
@@ -69,7 +71,9 @@ class World{
     );
     customMaterial.setTexture( 'matcapSampler', matcapTexture );
     
-
+    const defines = [];
+    defines.push( 'ADDCOLOR' );
+    defines.push( 'MATCAP_DESATURATE' );
     var matcapMaterial = new ShaderMaterial(
       'shader',
       scene,
@@ -78,7 +82,7 @@ class World{
         fragment: 'matcap',
       },
       {
-        defines: ['ADDCOLOR', 'MATCAP_DESATURATE'],
+        defines: defines,
         uniforms: ['worldView', 'worldViewProjection', 'uColor'],
         samplers: ['matcapSampler', 'checkerSampler'],
       },
@@ -86,9 +90,10 @@ class World{
     matcapMaterial.setTexture( 'matcapSampler', matcapTexture );
     matcapMaterial.setTexture( 'matcapBlurSampler', matcapBlurTexture );
     matcapMaterial.setTexture( 'colorTexSampler', colorTexture );
+    matcapMaterial.setTexture( 'colorTex2Sampler', colorTexture2 );
     matcapMaterial.setTexture( 'specularSampler', specularTexture );
     matcapMaterial.setTexture( 'checkerSampler', checkerTexture );
-    matcapMaterial.setVector3( 'uColor', new Vector3( 1,1,1) );
+    matcapMaterial.setVector3( 'uColor', new Vector3(1,1,1) );
 
     const matcap = new StandardMaterial( '' );
     matcap.reflectionTexture = matcapTexture;
@@ -98,18 +103,21 @@ class World{
         if( mesh.geometry ){
           mesh.material = matcapMaterial;
 
-          const cloneMesh = mesh.clone();
-          cloneMesh.position.x += 2;
-          cloneMesh.material = matcap;
+          // const cloneMesh = mesh.clone();
+          // cloneMesh.position.x += 2;
+          // cloneMesh.material = matcap;
 
-          const cloneMesh2 = cloneMesh.clone();
-          cloneMesh2.position.x += 4;
-          cloneMesh2.material = customMaterial;
+          // const cloneMesh2 = cloneMesh.clone();
+          // cloneMesh2.position.x += 4;
+          // cloneMesh2.material = customMaterial;
 
-          mesh.position.x -= 2;
+          // mesh.position.x -= 2;
         }
       } );
     } );
+
+    // const plane = MeshBuilder.CreatePlane( 'plane', { size: 1 }, scene );
+    // plane.material = matcapMaterial;
 
 
 
