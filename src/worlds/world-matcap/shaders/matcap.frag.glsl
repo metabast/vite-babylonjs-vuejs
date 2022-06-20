@@ -26,6 +26,8 @@ vec4 desaturate( in vec4 color ) {
     return vec4(vec3((color.r + color.g + color.b)/2.), color.a);
 }
 
+#include<bumpFragmentMainFunctions>
+#include<bumpFragmentFunctions>
 
 void main(void) {
     vec4 specular = texture2D( specularSampler, vUv );
