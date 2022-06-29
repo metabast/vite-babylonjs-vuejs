@@ -15,14 +15,28 @@ onMounted( ()=>{
 } );
 </script>
 
-    <template>
+<template>
+<div id="container">
   <canvas id="scene3d"></canvas>
+  <canvas id="matcapCanvas"></canvas>
+  <div id="tweakpane"></div>
+</div>
 </template>
 
 <style scoped>
+#container{
+  width: 100%;
+  height: 100%;
+}
 #scene3d{
-    width: 100%;
+  width: 100%;
   height: 100%;
   touch-action: none;
+}
+#matcapCanvas{
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  left: 0;
 }
 </style>

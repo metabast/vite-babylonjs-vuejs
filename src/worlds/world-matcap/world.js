@@ -15,7 +15,10 @@ import {
 } from '@babylonjs/core';
 import '@babylonjs/loaders';
 import { PBRCustomMaterial } from '@babylonjs/materials';
+import { Pane } from 'tweakpane';
+import MatcapEditor from './matcapEditor';
 import MatcapPBRCustomMaterial from './MatcapPBRCustomMaterial';
+import MatcapTweaks from './matcapTweaks';
 
 import customFragmentShader from './shaders/custom.frag.glsl';
 import customVertexShader from './shaders/custom.vertex.glsl';
@@ -25,6 +28,12 @@ import matcapVertexShader from './shaders/matcap.vertex.glsl';
 
 class World{
   constructor(){
+
+    if( !World.instance ) World.instance = this;
+    else throw new Error( 'World is a singleton' );
+
+    this.tweakpane = new Pane();
+
     const canvas = document.getElementById( 'scene3d' );
     const engine = new Engine( canvas, true );
 
@@ -100,70 +109,26 @@ class World{
     matcapMaterial.setTexture( 'checkerSampler', checkerTexture );
     matcapMaterial.setVector3( 'uColor', new Vector3(1.,1.,1.) );
 
-    const matcap = new StandardMaterial( '' );
-    matcap.reflectionTexture = matcapTexture;
-
     const customPBR = new MatcapPBRCustomMaterial("pbrCustom", scene);
-    
-    
-    // customPBR.AddUniform(`lightmapColor2`, "sampler2D");
-
-    // customPBR.Vertex_Definitions(`
-    //   varying vec2 vUvView;
-
-    //   `);
-      
-    //   customPBR.Vertex_Before_PositionUpdated(`
-    //   mat4 worldView = world * view;
-    //   vec4 p = vec4( position, 1. );
-    //   vec3 normalView = normalize( mat3(worldView) * normal );
-    //   vec4 vPositionView = worldView * p;
-
-    //   vec3 viewDir = normalize( vPositionView.xyz );
-    //   vec3 x = normalize( vec3( viewDir.z, 0.0, - viewDir.x ) );
-    //   vec3 y = cross( viewDir, x );
-    //   vUvView = vec2( dot( x, normalView ), dot( y, normalView ) ) * 0.495 + 0.5; // 0.495 to remove artifacts caused by undersized matcap disks
-    //   // vUvView = vec2(normalView.x);
-    // `);
-
-    // customPBR.Fragment_Definitions(`
-    //   varying vec2 vUvView;
-    //   vec4 desaturate( in vec4 color ) {
-    //     return vec4(vec3((color.r + color.g + color.b)/2.), color.a);
-    //   }
-    // `);
-
-    // customPBR.Fragment_Before_FragColor(`
-    //   // vec4 lightmapColor2 = desaturate(texture(lightmapColor2, vUvView));
-    //   // lightmapColor2.rgb *= 1.;
-    //   // // finalColor.rgb = vec3(vUvView.y);
-    //   // lightmapColor = lightmapColor2;
-    //   // finalColor.rgb = lightmapColor.rgb;
-    //   // finalColor.rgb = vec3(vLightmapInfos.y);
-    //   // finalColor.r = 1.-finalColor.r;
-    // `);
-
-    // customPBR.albedoTexture = colorTexture;
-    // customPBR.bumpTexture = new Texture("http://i.imgur.com/wGyk6os.png", scene);
-    // customPBR.bumpTexture.level = 2;
-    // customPBR.bumpTexture.uScale  = customPBR.bumpTexture.vScale = 4;
-    // console.log(customPBR);
     
     customPBR.bumpTexture = new Texture("./Substance_graph_normal.png", scene);
     customPBR.bumpTexture.uScale = customPBR.bumpTexture.vScale = 4;
     customPBR.bumpTexture.level = .6;
-    // customPBR.useRoughnessFromMetallicTextureAlpha = false;
-    // customPBR.useRoughnessFromMetallicTextureGreen = true;
-    // customPBR.useMetallnessFromMetallicTextureBlue = true;
-    customPBR.metallic = 1;
-    customPBR.roughness = 1;
-    
-    customPBR.onBindObservable.add(function () { 
-      customPBR.getEffect().setTexture('lightmapColor2', matcapTexture);
+    window.addEventListener('matcap:bump', (event) => {
+      customPBR.bumpTexture.level = event.detail;
     });
-    // customPBR.setTexture('lightmapColor2', matcapTexture);
-    // customPBR.emissiveColor = new Color3(1,1,1);
-    customPBR.reflectionTexture = matcapTexture;
+
+    customPBR.emissiveColor = Color3.Black();
+    window.addEventListener('matcap:emissiveColor', (event) => {
+      customPBR.emissiveColor = Color3.FromHexString(event.detail);
+    });
+
+    customPBR.reflectionColor = Color3.White();
+    window.addEventListener('matcap:reflectionColor', (event) => {
+      customPBR.reflectionColor = Color3.FromHexString(event.detail);
+    });
+    // customPBR.reflectionTexture = matcapTexture;
+    customPBR.reflectionTexture = MatcapEditor.getMatcapTexture();
 
     const classicPBR = new PBRMaterial("pbrClassic", scene);
     classicPBR.reflectionTexture = matcapTexture;
@@ -203,7 +168,7 @@ class World{
     // const plane = MeshBuilder.CreatePlane( 'plane', { size: 1 }, scene );
     // plane.material = matcapMaterial;
 
-
+    MatcapTweaks.getInstance().addTweaks();
 
     engine.runRenderLoop( ()=> {
       scene.render();
@@ -212,6 +177,12 @@ class World{
     window.addEventListener( 'resize', ()=>{
       engine.resize();
     } );
+  }
+  static getInstance() {
+    if( !World.instance ){
+      return new World();
+    }
+    return World.instance;
   }
 }
 
