@@ -14,8 +14,6 @@ varying vec3 vColor;
 varying vec2 vUv;
 varying vec2 vN;
 
-#include ../../../shaders/utils.glsl
-
 void main(void) {
     gl_FragColor = vec4(vColor, 1.);
 }
